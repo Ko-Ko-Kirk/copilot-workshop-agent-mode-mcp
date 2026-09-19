@@ -1,12 +1,17 @@
 // 待辦清單應用程式：只使用原生 JavaScript，資料存放在 localStorage
 (function () {
   const STORAGE_KEY = "todo-list-items";
+  const THEME_STORAGE_KEY = "todo-list-theme";
 
   const form = document.getElementById("todo-form");
   const input = document.getElementById("todo-input");
   const list = document.getElementById("todo-list");
   const emptyHint = document.getElementById("empty-hint");
   const remainingCount = document.getElementById("remaining-count");
+  const themeToggle = document.getElementById("theme-toggle");
+  const filtersContainer = document.getElementById("todo-filters");
+
+  let currentFilter = "all";
 
   // 從 localStorage 讀取資料，若沒有資料則回傳空陣列
   function loadTodos() {
@@ -25,14 +30,62 @@
 
   let todos = loadTodos();
 
+  // 套用深色/淺色主題，並將選擇存入 localStorage
+  function applyTheme(theme) {
+    document.body.setAttribute("data-theme", theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+    themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
+  }
+
+  // 初始化主題：優先使用使用者先前的選擇，否則跟隨系統設定
+  function initTheme() {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (savedTheme) {
+      applyTheme(savedTheme);
+      return;
+    }
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    applyTheme(prefersDark ? "dark" : "light");
+  }
+
+  themeToggle.addEventListener("click", () => {
+    const current = document.body.getAttribute("data-theme");
+    applyTheme(current === "dark" ? "light" : "dark");
+  });
+
+  // 依據目前篩選條件過濾出要顯示的待辦事項
+  function getFilteredTodos() {
+    if (currentFilter === "active") {
+      return todos.filter((todo) => !todo.completed);
+    }
+    if (currentFilter === "completed") {
+      return todos.filter((todo) => todo.completed);
+    }
+    return todos;
+  }
+
+  filtersContainer.addEventListener("click", (event) => {
+    const btn = event.target.closest(".filter-btn");
+    if (!btn) {
+      return;
+    }
+    currentFilter = btn.dataset.filter;
+    filtersContainer
+      .querySelectorAll(".filter-btn")
+      .forEach((el) => el.classList.toggle("active", el === btn));
+    render();
+  });
+
   // 依據目前的 todos 重新渲染整個清單畫面
   function render() {
     list.innerHTML = "";
 
-    // 清單為空時顯示提示文字，否則隱藏
-    emptyHint.style.display = todos.length === 0 ? "block" : "none";
+    const visibleTodos = getFilteredTodos();
 
-    todos.forEach((todo) => {
+    // 清單為空時顯示提示文字，否則隱藏
+    emptyHint.style.display = visibleTodos.length === 0 ? "block" : "none";
+
+    visibleTodos.forEach((todo) => {
       const li = document.createElement("li");
       li.className = "todo-item" + (todo.completed ? " completed" : "");
       li.dataset.id = todo.id;
@@ -105,5 +158,6 @@
     input.focus();
   });
 
+  initTheme();
   render();
 })();
