@@ -64,6 +64,19 @@
     return todos;
   }
 
+  function getEmptyHint() {
+    if (todos.length === 0) {
+      return "還沒有任何待辦事項,新增一個吧!";
+    }
+    if (currentFilter === "active") {
+      return "目前沒有未完成的事項。切換到「全部」查看所有待辦事項。";
+    }
+    if (currentFilter === "completed") {
+      return "目前沒有已完成的事項。切換到「全部」查看所有待辦事項。";
+    }
+    return "目前沒有符合條件的事項。";
+  }
+
   filtersContainer.addEventListener("click", (event) => {
     const btn = event.target.closest(".filter-btn");
     if (!btn) {
@@ -82,7 +95,8 @@
 
     const visibleTodos = getFilteredTodos();
 
-    // 清單為空時顯示提示文字，否則隱藏
+    // 清單為空時顯示符合目前篩選條件的提示文字，否則隱藏
+    emptyHint.textContent = getEmptyHint();
     emptyHint.style.display = visibleTodos.length === 0 ? "block" : "none";
 
     visibleTodos.forEach((todo) => {
