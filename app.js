@@ -8,6 +8,7 @@
   const list = document.getElementById("todo-list");
   const emptyHint = document.getElementById("empty-hint");
   const remainingCount = document.getElementById("remaining-count");
+  const clearCompletedButton = document.getElementById("clear-completed");
   const themeToggle = document.getElementById("theme-toggle");
   const filtersContainer = document.getElementById("todo-filters");
 
@@ -53,6 +54,24 @@
     applyTheme(current === "dark" ? "light" : "dark");
   });
 
+  clearCompletedButton.addEventListener("click", () => {
+    const completedCount = todos.filter((todo) => todo.completed).length;
+    if (completedCount === 0) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `確定要清除 ${completedCount} 項已完成的待辦事項嗎?`
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    todos = todos.filter((todo) => !todo.completed);
+    saveTodos(todos);
+    render();
+  });
+
   // 依據目前篩選條件過濾出要顯示的待辦事項
   function getFilteredTodos() {
     if (currentFilter === "active") {
@@ -91,7 +110,7 @@
 
   // 依據目前的 todos 重新渲染整個清單畫面
   function render() {
-    list.innerHTML = "";
+    list.replaceChildren();
 
     const visibleTodos = getFilteredTodos();
 
@@ -129,6 +148,7 @@
     // 更新未完成項目數量
     const remaining = todos.filter((todo) => !todo.completed).length;
     remainingCount.textContent = `未完成：${remaining} 項`;
+    clearCompletedButton.disabled = !todos.some((todo) => todo.completed);
   }
 
   // 新增一筆待辦事項

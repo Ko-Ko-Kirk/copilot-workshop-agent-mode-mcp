@@ -205,9 +205,32 @@ h1 {
   margin-top: 16px;
   padding-top: 12px;
   border-top: 1px solid var(--color-border);
-  text-align: right;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   color: var(--color-text-muted);
   font-size: 0.9rem;
+}
+
+.btn-clear-completed {
+  padding: 6px 10px;
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius);
+  background-color: transparent;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-clear-completed:hover:not(:disabled) {
+  background-color: var(--color-danger);
+  color: var(--color-card-bg);
+}
+
+.btn-clear-completed:disabled {
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
 }
 
 /* 手機螢幕的響應式調整 */
